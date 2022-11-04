@@ -29,7 +29,7 @@ def home(request):
         background-color: #fefefe;
         margin: 5% auto 15% auto;
         border: 1px solid #888;
-        border-radius: 10%;
+        border-radius: 10px;
         width: 70%;
         text-align: center;
         animation: animatezoom 1s;
