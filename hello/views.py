@@ -1,106 +1,49 @@
+from django.utils.timezone import datetime
 from django.http import HttpResponse
+from django.shortcuts import render
+from django.shortcuts import redirect
+from hello.forms import LogMessageForm
+from hello.models import LogMessage
+from django.views.generic import ListView
 
-def home(request):
-    return HttpResponse("""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-    @keyframes animatezoom {
-        from {transform: scale(0)} 
-        to {transform: scale(1)}
-    }
-    #id1{
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgb(0,0,0);
-        background-color: rgba(0,0,0,0.4);
-        padding-top: 60px;
-    }
-    .container{
-        background-color: #fefefe;
-        margin: 5% auto 15% auto;
-        border: 1px solid #888;
-        border-radius: 10px;
-        width: 70%;
-        text-align: center;
-        animation: animatezoom 1s;
-    }
-    input{
-        width: 50%;
-    }
-    .header{
-        position: relative;
-        width: 100%;
-    }
-    .close{
-        position: absolute;
-        right: 2%;
-        font-weight: bold;
-        font-size: 35px;
-        color: red;
-        cursor: pointer;
-    }
-    .TIM{
-        text-align: center;
-        color: red;
-        text-decoration: underline;
-    }
-    body{
-        text-align: center;
-    }
-    @media screen and (min-width: 600px){
-        .container{
-            width: 50%;
-        } 
-    }
-    @media screen and (min-width: 1200px){
-        .container{
-            width: 30%;
-        } 
-    }
-    </style>
-    <title>login</title>
-</head>
-<body>
-    <h1 class="TIM">Hallo Tim!!!</h1>
-    <button class="loginb" onclick="document.getElementById('id1').style.display='block'">Log In</button>
+def log_message(request):
+    form = LogMessageForm(request.POST or None)
 
-    <div id="id1">
+    if request.method == "POST":
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.log_date = datetime.now()
+            message.save()
+            return redirect("home")
+    else:
+        return render(request, "hello/log_message.html", {"form": form})
 
-        <div class="container">
-            <div class="header">
-                <span class="close" onclick="document.getElementById('id1').style.display='none'">&times;</span>
-                <br>
-                <h2>Log In</h2>
-            </div>
-            <input type="text" placeholder="Username">
-            <br><br>
-            <input type="text" placeholder="Password">
-            <br><br>
-            <button class="loginb">log in</button>
-            <br><br>
-        </div>
+class HomeListView(ListView):
+    """Renders the home page, with a list of all messages."""
+    model = LogMessage
 
-    </div>
+    def get_context_data(self, **kwargs):
+        context = super(HomeListView, self).get_context_data(**kwargs)
+        return context
 
-    <script>
-    var modal = document.getElementById('id1');
+def about(request):
+    return render(request, "hello/about.html")
 
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+def contact(request):
+    return render(request, "hello/contact.html")
+
+def hello(request):
+    return HttpResponse("Hello, Django!")
+
+def it_is_me(request):
+    return HttpResponse("Hello, it's me, hi I'm the HttpResponse!")
+
+def hello_there(request, name):
+    return render(
+        request,
+        'hello/hello_there.html',
+        {
+            'name': name,
+            'date': datetime.now()
         }
-    }
-
-    </script>
-</body>
-</html>""")
+    )
